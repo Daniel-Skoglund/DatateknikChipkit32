@@ -1,0 +1,11 @@
+Temperature Sensor: A digital temperature sensor is provided using a Microchip TCN75A 2-Wire Serial Temperature Sensor. 
+The temperature sensor, IC2, is an I2C device, and is located in the lower right corner of the board. 
+ 
+The TCN75A is rated for an accuracy of +/-1ºC and has selectable resolution from 0.5ºC down to 0.0625ºC. 
+
+The seven bit device address is ‘1001000’. 
+ 
+Digilent provides a library for accessing the temperature sensor. 
+This library is available on the Digilent web site and in the third party library repository on github. 
+ 
+The TCN75A provides an alert output that can be programmed for various functions
