@@ -1,0 +1,21 @@
+"An I2C bus consists of two signal lines called SDA (data) and SCL (clock). 
+
+Just line Arduino Uno, the chipKIT Uno32 board offers the SDA and SCL connections via analogue input pins A4 and A5 respectively.
+
+Each device connected to the I2C bus is software addressable by an unique 7-bit address.
+
+Multiple I2C devices can be connected to the same I2C bus as long as they have different addresses.
+
+A simple Master and Slave relationship exist at all times between the communicating devices.
+
+The Master device initiates a data transfer, generates clock signals and terminates the transfer.
+
+Any device addressed by the Master at any time is considered a slave. 
+
+Both SDA and SCL are open-drain lines, and therefore, require two pull-up resistors during operation. 
+
+A more detail look of the I2C Bus protocol and how the exchange of information takes place between Master and Slave has been discussed
+in one of my previous tutorials,Inter-Integrated Communication in PIC MCU. So I am not going to repeat that here again."
+
+LINK HERE: 
+http://embedded-lab.com/blog/chipkit-tutorial-6-inter-integrated-circuit-i2c-communication/
