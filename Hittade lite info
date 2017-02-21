@@ -1,3 +1,5 @@
+
+
 "An I2C bus consists of two signal lines called SDA (data) and SCL (clock). 
 
 Just line Arduino Uno, the chipKIT Uno32 board offers the SDA and SCL connections via analogue input pins A4 and A5 respectively.
@@ -19,3 +21,6 @@ in one of my previous tutorials,Inter-Integrated Communication in PIC MCU. So I 
 
 LINK HERE: 
 http://embedded-lab.com/blog/chipkit-tutorial-6-inter-integrated-circuit-i2c-communication/
+
+Also see this:
+https://github.com/yalapeno/bmp280-with-Chipkit-Uno32/blob/master/main.c
