@@ -31,7 +31,6 @@ enum TempSensorReg {
 	TEMP_SENSOR_REG_LIMIT,
 };
 
-
 char textbuffer[4][16];
 
 static const uint8_t const font[] = {
@@ -377,10 +376,6 @@ int main(void) {
 	I2C1CONSET = 1 << 15; // ON = 1
 	temp = I2C1RCV; //Clear receive buffer
 	
-	/* Set up input pins */
-	TRISDSET = (1 << 8);
-	TRISFSET = (1 << 1);
-	
 	
 	display_init();
 	display_string(0, "Temperature:");
@@ -428,11 +423,6 @@ int main(void) {
 		i2c_stop();
 		
 		s = fixed_to_string(temp, buf);
-		t = s + strlen(s);
-		*t++ = ' ';
-		*t++ = 7;
-		*t++ = 'C';
-		*t++ = 0;
 		
 		display_string(1, s);
 		display_update();
