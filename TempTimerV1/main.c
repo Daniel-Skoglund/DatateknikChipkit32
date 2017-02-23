@@ -248,7 +248,7 @@ void display_update() {
 
 /* Wait for I2C bus to become idle */
 void i2c_idle() {
-	while(I2C1CON & 0x1F || I2C1STAT & (1 << 14)); //TRSTAT
+	while(I2C1CON & 0x1F || I2C1STAT & (1 << 14)); //WHILE  all starting bits in I2C1CON are enabled "or" While TRSTAT(Transmit status bit) is 1
 }
 
 /* Send one byte on I2C bus, return ack/nack status of transaction */
@@ -265,7 +265,7 @@ uint8_t i2c_recv() {
 	I2C1CONSET = 1 << 3; //RCEN = 1
 	i2c_idle();
 	I2C1STATCLR = 1 << 6; //I2COV = 0
-	return I2C1RCV;
+	return I2C1RCV;		//I2C1RCV is a register that contains the read data (byte)
 }
 
 /* Send acknowledge conditon on the bus */
