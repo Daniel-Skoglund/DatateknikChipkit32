@@ -10,6 +10,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+
+
 #define DISPLAY_VDD_PORT PORTF
 #define DISPLAY_VDD_MASK 0x40
 #define DISPLAY_VBATT_PORT PORTF
@@ -345,6 +347,17 @@ uint32_t strlen(char *str) {
 	return n;
 }
 
+//Used for the clock
+/*int mytime = 0x0000;
+char textstring[] = "text, more text, and even more text!";
+
+void clock ( void ) {
+	time2string( textstring, mytime );
+    display_string( 3, textstring );
+    display_update();
+    tick( &mytime );
+}*/
+
 int main(void) {
 	uint16_t temp;
 	char buf[32], *s, *t;
@@ -428,6 +441,10 @@ int main(void) {
 		display_update();
 		delay(1000000);
 	}
+	
+	//clock();
+	
+	
 	
 	return 0;
 }
