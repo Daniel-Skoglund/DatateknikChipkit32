@@ -10,9 +10,21 @@
 #include <stdbool.h>
 
 
+#define DISPLAY_VDD_PORT PORTF
+#define DISPLAY_VDD_MASK 0x40
+#define DISPLAY_VBATT_PORT PORTF
+#define DISPLAY_VBATT_MASK 0x20
+#define DISPLAY_COMMAND_DATA_PORT PORTF
+#define DISPLAY_COMMAND_DATA_MASK 0x10
+#define DISPLAY_RESET_PORT PORTG
+#define DISPLAY_RESET_MASK 0x200
+#define TEMP_SENSOR_ADDR 0x48   //<-- Here the address of the temperature sensor is defined
+
+
 //////////////////////////////////// The Above Could Be In Its Own File ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 int main(void) {
+
 	uint16_t temp; //Deklarerar temp (fixed to string)
 	char buf[32], s*, *t; 							// Vad är detta? (fixed to string)
 	
@@ -130,3 +142,4 @@ int main(void) {
 
 
 
+}
