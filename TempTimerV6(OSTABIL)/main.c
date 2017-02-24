@@ -38,11 +38,12 @@
 
 
 // GLobala variabler
-int mytime = 0x5957;
+int mytime = 0x0000;
 char textstring[] = "asdkladklaskdlasdklasdklaskdlaskdl";
 const uint8_t const font[128*8];
 char textbuffer[4][16];
 int timeoutcount = 0;
+double antalsekunder = 0;
 /* Temperature sensor internal registers */
 typedef enum TempSensorReg TempSensorReg;
 enum TempSensorReg {
@@ -318,7 +319,7 @@ void tick( unsigned int * timep )
   
   /* If result was not a valid BCD-coded time, adjust now */
 
-  if( (t & 0x0000000f) >= 0x0000000a ) t += 0x00000006;
+  if( (t & 0x0000000f) >= 0x0000000a ) t += 0x00000009;
   if( (t & 0x000000f0) >= 0x00000060 ) t += 0x000000a0;
   /* Seconds are now OK */
 
@@ -335,6 +336,21 @@ void tick( unsigned int * timep )
   /* Days are now OK */
 
   * timep = t; /* Store new value */
+}
+
+int getsw(void)
+{
+	int sw; 
+	sw = ((PORTD >> 8) & 0x0000F);
+	return sw;
+	
+}
+
+int getbtns(void)
+{
+	int btn;
+	btn = ((PORTD >> 5) & 0x00007);
+	return btn;
 }
 
 /* Wait for I2C bus to become idle */
@@ -437,31 +453,41 @@ uint32_t strlen(char *str) {
 	return n;
 }
 
+// double medeltemp(uint16_t temp){
+	// double temperatur += temp;
+	// return temperatur;
+// }
+
 void user_isr( void )
 {
-	if(IFS(0) & 0x100)
-	{
-    timeoutcount++;
-	if(timeoutcount == 10)
-		{
-			time2string(textstring, mytime);
-			display_string(3, textstring);
+	int startswitch = getsw();
+	if(IFS(0) & 0x100) {
+		if(startswitch == 1) {
+			timeoutcount++;
+			if(timeoutcount == 10){
+				time2string(textstring, mytime);
+				display_string(3, textstring);
 			
-			display_update();
-			tick(&mytime);
-			timeoutcount = 0;
+				display_update();
+				tick(&mytime);
+				timeoutcount = 0;
+				antalsekunder += 1;
+			}
 		}
-   IFSCLR(0) = 0x100;
+		IFSCLR(0) = 0x100;
 	}	
-    if(IFS(0) & 0x80000)
-    {
+	if(IFS(0) & 0x80000) {
 		PORTE++;
 		IFSCLR(0) = 0x80000;
     }	
 }
+	
+	
 
 int main(void) {
 	uint16_t temp;
+	// uint16_t medeltemp;
+	// int checkbutton = getbtns();
 	char buf[32], *s, *t;
 
 	/* Set up peripheral bus clock */
@@ -570,6 +596,11 @@ int main(void) {
 		i2c_nack();
 		i2c_stop();
 		
+		// double alltemp;
+		// if(timeoutcount == 10){
+			// alltemp += temp;
+		// }
+		
 		s = fixed_to_string(temp, buf);
 		t = s + strlen(s);
 		*t++ = ' ';
@@ -577,10 +608,21 @@ int main(void) {
 		*t++ = 'C';
 		*t++ = 0;
 		
+		// medeltemp = alltemp / antalsekunder;
+		// v = fixed_to_string(medeltemp, buf);
+		
 		//user_isr();
 		display_string(1, s);
 		display_update();
 		delay(1000000);
+		
+		// if(checkbutton == 1){
+		// display_string(2, "Medeltemperaturen är: ");
+		// display_string(3, v);
+		// display_update();
+		// }
+		
+		
 	}
 	
 	

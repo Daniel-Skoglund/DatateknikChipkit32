@@ -38,7 +38,7 @@
 
 
 // GLobala variabler
-int mytime = 0x5957;
+int mytime = 0x0000;
 char textstring[] = "asdkladklaskdlasdklasdklaskdlaskdl";
 const uint8_t const font[128*8];
 char textbuffer[4][16];
@@ -437,27 +437,47 @@ uint32_t strlen(char *str) {
 	return n;
 }
 
+int getsw(void)
+{
+	int sw; 
+	sw = ((PORTD >> 8) & 0x0000F);
+	return sw;
+	
+}
+
+int getbtns(void)
+{
+	int btn;
+	btn = ((PORTD >> 5) & 0x00007);
+	return btn;
+}
+
 void user_isr( void )
 {
+	int startswitch = getsw();
+	
 	if(IFS(0) & 0x100)
 	{
-    timeoutcount++;
-	if(timeoutcount == 10)
-		{
-			time2string(textstring, mytime);
-			display_string(3, textstring);
+    
+	if(startswitch == 1){
+		timeoutcount++;
+		if(timeoutcount == 10)
+			{
+				time2string(textstring, mytime);
+				display_string(3, textstring);
 			
-			display_update();
-			tick(&mytime);
-			timeoutcount = 0;
-		}
-   IFSCLR(0) = 0x100;
+				display_update();
+				tick(&mytime);
+				timeoutcount = 0;
+			}
+		IFSCLR(0) = 0x100;
 	}	
     if(IFS(0) & 0x80000)
     {
 		PORTE++;
 		IFSCLR(0) = 0x80000;
     }	
+}
 }
 
 int main(void) {
