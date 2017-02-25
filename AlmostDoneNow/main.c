@@ -606,18 +606,18 @@ int main(void) {
 		if ((mintemp == 0) || (temp < mintemp))
 			mintemp = temp;
 		
-		if (avgtemp = 0)
+		if (avgtemp == 0)
 			avgtemp = temp;
 		
 		else 
 			avgtemp = ((avgtemp + temp)/2);
 		
 		s = fixed_to_string(temp, buf);
-		// t = s + strlen(s);
-		// *t++ = ' ';
+		 t = s + strlen(s);
+		 *t++ = ' ';
 		// *t++ = 7;
-		// *t++ = 'C';
-		// *t++ = 0;
+		 *t++ = 'C';
+		 *t++ = 0;
 		
 		//user_isr();
 		display_string(0, s);
@@ -643,7 +643,12 @@ int main(void) {
 				display_string(1, "Avg Temp"); 
 			}
 		
-		
+		 t = s + strlen(s);
+		 *t++ = ' ';
+	  // *t++ = 7;
+		 *t++ = 'C';
+		 *t++ = 0;
+		 
 		display_string(2, s);
 		display_update();
 		
