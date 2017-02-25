@@ -205,20 +205,23 @@ int shiftVal = 28;
 	textStr[0] = (char) val + 0x30;
 	val = (timeVal & 0x0f000000) >> 24;
 	textStr[1] = (char) val + 0x30;
+	textStr[2] = ':';
 	val = (timeVal & 0x00f00000) >> 20;
-	textStr[2] = (char) val + 0x30;
-	val = (timeVal & 0x000f0000) >> 16;
 	textStr[3] = (char) val + 0x30;
-	val = (timeVal & 0x0000f000) >> 12;
+	val = (timeVal & 0x000f0000) >> 16;
 	textStr[4] = (char) val + 0x30;
-	val = (timeVal & 0x00000f00) >> 8;
-	textStr[5] = (char) val + 0x30;
-	val = (timeVal & 0x000000f0) >> 4;
+	textStr[5] = ':';
+	val = (timeVal & 0x0000f000) >> 12;
 	textStr[6] = (char) val + 0x30;
-	val = timeVal & 0x0000000f;
+	val = (timeVal & 0x00000f00) >> 8;
 	textStr[7] = (char) val + 0x30;
+	textStr[8] = ':';
+	val = (timeVal & 0x000000f0) >> 4;
+	textStr[9] = (char) val + 0x30;
+	val = timeVal & 0x0000000f;
+	textStr[10] = (char) val + 0x30;
 	
-	textStr[8] = '\0';
+	textStr[11] = '\0';
 	
 }
 
@@ -458,30 +461,36 @@ void user_isr( void )
 	
 	if(IFS(0) & 0x100)
 	{
-    
-	if(startswitch == 1){
-		timeoutcount++;
-		if(timeoutcount == 10)
-			{
-				time2string(textstring, mytime);
-				display_string(3, textstring);
-			
-				display_update();
-				tick(&mytime);
-				timeoutcount = 0;
-			}
+		//Stannar klockan vid sw1 == 1
+		//if(startswitch == 1)
+		//{
+			timeoutcount++;
+			if(timeoutcount == 10)
+				{
+					time2string(textstring, mytime);
+					display_string(3, textstring);
+				
+					display_update();
+					tick(&mytime);
+					timeoutcount = 0;
+				}
+		//}	
 		IFSCLR(0) = 0x100;
-	}	
-    if(IFS(0) & 0x80000)
-    {
-		PORTE++;
-		IFSCLR(0) = 0x80000;
-    }	
-}
+	}
+	//Behövs ej
+		// if(IFS(0) & 0x80000)
+		// {
+		// PORTE++;
+		// IFSCLR(0) = 0x80000;
+		// }
 }
 
+
 int main(void) {
-	uint16_t temp;
+	uint16_t temp = 0;
+	uint16_t mintemp = 0;
+	uint16_t maxtemp = 0;
+	uint16_t avgtemp = 0;
 	char buf[32], *s, *t;
 
 	/* Set up peripheral bus clock */
@@ -534,7 +543,7 @@ int main(void) {
 	
 	
 	display_init();
-	display_string(0, "Temperature:");
+	display_string(0, "");
 	display_string(1, "");
 	display_string(2, "");
 	display_string(3, "");
@@ -590,16 +599,55 @@ int main(void) {
 		i2c_nack();
 		i2c_stop();
 		
+		
+		if ((maxtemp == 0) || (temp > maxtemp))
+			maxtemp = temp;
+		
+		if ((mintemp == 0) || (temp < mintemp))
+			mintemp = temp;
+		
+		if (avgtemp = 0)
+			avgtemp = temp;
+		
+		else 
+			avgtemp = ((avgtemp + temp)/2);
+		
 		s = fixed_to_string(temp, buf);
-		t = s + strlen(s);
-		*t++ = ' ';
-		*t++ = 7;
-		*t++ = 'C';
-		*t++ = 0;
+		// t = s + strlen(s);
+		// *t++ = ' ';
+		// *t++ = 7;
+		// *t++ = 'C';
+		// *t++ = 0;
 		
 		//user_isr();
-		display_string(1, s);
+		display_string(0, s);
 		display_update();
+		
+		
+		int buttox = getbtns();
+		int switchez = getsw();
+	
+		if(switchez == 1 )
+			{
+				s = fixed_to_string(maxtemp, buf);
+				display_string(1, "Max Temp");
+			}
+		if(switchez == 2)
+			{
+				s = fixed_to_string(mintemp, buf);
+				display_string(1, "Min Temp");
+			}
+		if(switchez == 4)
+			{
+				s = fixed_to_string(avgtemp, buf);
+				display_string(1, "Avg Temp"); 
+			}
+		
+		
+		display_string(2, s);
+		display_update();
+		
+		// saktar ner for loopen.
 		delay(1000000);
 	}
 	
