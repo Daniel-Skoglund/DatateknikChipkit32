@@ -1,10 +1,3 @@
-/*
- * I2C Example project for the mcb32 toolchain
- * Demonstrates the temperature sensor and display of the Basic IO Shield
- * Make sure your Uno32-board has the correct jumper settings, as can be seen
- * in the rightmost part of this picture:
- * https://reference.digilentinc.com/_media/chipkit_uno32:jp6_jp8.png?w=300&tok=dcceb2
- */
 
 #include <pic32mx.h>
 #include <stdint.h>
@@ -310,37 +303,39 @@ void display_update() {
 //Godtycklig Labbkod
 void tick(unsigned int * timep)
 {
-  /* Get current value, store locally */
+  //Tar det nuvarande värdet av tiden och lagrar det lokalt
   register unsigned int t = * timep;
-  t += 1; /* Increment local copy */
+  t += 1; //Ökar räknaren i tick med 1
   
-  /* If result was not a valid BCD-coded time, adjust now */
+  //Här ändrar man hur klockans egenskapaer och hur den beter sig
 
   if( (t & 0x0000000f) >= 0x0000000a ) t += 0x00000006;
   if( (t & 0x000000f0) >= 0x00000060 ) t += 0x000000a0;
-  /* Seconds are now OK */
+  //Sekunder
 
   if( (t & 0x00000f00) >= 0x00000a00 ) t += 0x00000600;
   if( (t & 0x0000f000) >= 0x00006000 ) t += 0x0000a000;
-  /* Minutes are now OK */
+  //Minuter
 
   if( (t & 0x000f0000) >= 0x000a0000 ) t += 0x00060000;
   if( (t & 0x00ff0000) >= 0x00240000 ) t += 0x00dc0000;
-  /* Hours are now OK */
+  //Timmar
 
   if( (t & 0x0f000000) >= 0x0a000000 ) t += 0x06000000;
   if( (t & 0xf0000000) >= 0xa0000000 ) t = 0;
-  /* Days are now OK */
+  //Dagar
 
-  * timep = t; /* Store new value */
+  * timep = t; //Lagrar t till ett nytt värde
 }
 
-/* Wait for I2C bus to become idle */
+//Väntar på att I2C-bussen ska bli inaktiv
 void i2c_idle() {
-	while(I2C1CON & 0x1F || I2C1STAT & (1 << 14)); //WHILE  all starting bits in I2C1CON are enabled "or" While TRSTAT(Transmit status bit) is 1
+	while(I2C1CON & 0x1F || I2C1STAT & (1 << 14)); 
+	//Medan alla "starting bits" i I2C1CON är enablade, eller,  när TRSTAT(Transmit status bit) är lika med 1
 }
 
-/* Send one byte on I2C bus, return ack/nack status of transaction */
+
+//Skickar en byte via I2C bussen, returnar en ack/nack ,"status of transaction"
 bool i2c_send(uint8_t data) {
 	i2c_idle();
 	I2C1TRN = data;
@@ -348,53 +343,54 @@ bool i2c_send(uint8_t data) {
 	return !(I2C1STAT & (1 << 15)); //ACKSTAT
 }
 
-/* Receive one byte from I2C bus */
+//Får in en byte från I2C bussen
 uint8_t i2c_recv() {
 	i2c_idle();
 	I2C1CONSET = 1 << 3; //RCEN = 1
 	i2c_idle();
 	I2C1STATCLR = 1 << 6; //I2COV = 0
-	return I2C1RCV;		//I2C1RCV is a register that contains the read data (byte)
+	return I2C1RCV;	     //I2C1RCV är ett register som innehåller "read data" (byte)
 }
 
-/* Send acknowledge conditon on the bus */
+//skicakr ack via I2C-bussen
 void i2c_ack() {
 	i2c_idle();
 	I2C1CONCLR = 1 << 5; //ACKDT = 0
 	I2C1CONSET = 1 << 4; //ACKEN = 1
 }
 
-/* Send not-acknowledge conditon on the bus */
+//skicakr nack via I2C-bussen
 void i2c_nack() {
 	i2c_idle();
 	I2C1CONSET = 1 << 5; //ACKDT = 1
 	I2C1CONSET = 1 << 4; //ACKEN = 1
 }
 
-/* Send start conditon on the bus */
+//skicakr "start" via I2C-bussen
 void i2c_start() {
 	i2c_idle();
 	I2C1CONSET = 1 << 0; //SEN
 	i2c_idle();
 }
 
-/* Send restart conditon on the bus */
+//skicakr "restart" via I2C-bussen
 void i2c_restart() {
 	i2c_idle();
 	I2C1CONSET = 1 << 1; //RSEN
 	i2c_idle();
 }
 
-/* Send stop conditon on the bus */
+//skicakr "stop" via I2C-bussen
 void i2c_stop() {
 	i2c_idle();
 	I2C1CONSET = 1 << 2; //PEN
 	i2c_idle();
 }
 
-//Måste kommenteras
+
 /* Convert 8.8 bit fixed point to string representation*/
-char *fixed_to_string(uint16_t num, char *buf) {
+char *fixed_to_string(uint16_t num, char *buf) // unsigned int av storleken 16, charpekare
+{
 	bool neg = false;
 	uint32_t n;
 	char *tmp;
@@ -404,7 +400,7 @@ char *fixed_to_string(uint16_t num, char *buf) {
 		neg = true;
 	}
 	
-	buf += 4;
+	buf += 4; //RIP
 	n = num >> 8;
 	tmp = buf;
 	do {
@@ -429,8 +425,8 @@ char *fixed_to_string(uint16_t num, char *buf) {
 	return tmp;
 }
 
-//Måste kommenteras
-uint32_t strlen(char *str) {
+uint32_t strlen(char *str) // unsigned int av storleken 32, charpekare
+{ 
 	uint32_t n = 0;
 	while(*str++)
 		n++;
@@ -444,14 +440,6 @@ int getsw(void)
 	sw = ((PORTD >> 8) & 0x0000F);
 	return sw;
 	
-}
-
-//Hämtar värdet för knapparna (1-3)
-int getbtns(void)
-{
-	int btn;
-	btn = ((PORTD >> 5) & 0x00007);
-	return btn;
 }
 
 //Kollar interrupts, skriver ut timern
@@ -481,11 +469,12 @@ int main(void) {
 	uint16_t avgtemp = 0;
 	char buf[32], *s, *t;
 
-	/* Set up peripheral bus clock */
+
+	//Sätter upp peripheral bus clock
 	OSCCON &= ~0x180000;
 	OSCCON |= 0x080000;
 	
-	/* Output pins for display signals */
+	// Output pins för display signalerna
 	PORTF = 0xFFFF;
 	PORTG = (1 << 9);
 	ODCF = 0x0;
@@ -493,32 +482,27 @@ int main(void) {
 	TRISFCLR = 0x70;
 	TRISGCLR = 0x200;
 	
-	/* Set up SPI as master */
+	//Gör SPI till master
 	SPI2CON = 0;
 	SPI2BRG = 4;
 	
-	/* Clear SPIROV*/
+	//Nollställer SPIROV
 	SPI2STATCLR &= ~0x40;
-	/* Set CKP = 1, MSTEN = 1; */
+	//Gör Set CKP = 1 och MSTEN = 1
         SPI2CON |= 0x60;
 	
-	/* Turn on SPI */
+	//Sätter upp SPI
 	SPI2CONSET = 0x8000;
 	
-	/* Set up i2c */
+	//Sätter upp I2C
 	I2C1CON = 0x0;
-	/* I2C Baud rate should be less than 400 kHz, is generated by dividing
-	the 40 MHz peripheral bus clock down */
+	// I2C "Baud rate" bör vara mindre än 400 kHz, vilket genereras när man dividerar pbclock med 40 MHz
 	I2C1BRG = 0x0C2;
 	I2C1STAT = 0x0;
 	I2C1CONSET = 1 << 13; //SIDL = 1
 	I2C1CONSET = 1 << 15; // ON = 1
-	temp = I2C1RCV; //Clear receive buffer
-	
-	/* Set up input pins */
-	TRISDSET = (1 << 8);
-	TRISFSET = (1 << 1);
-	
+	temp = I2C1RCV; //nollställer "receive buffer"
+
 	//Initialiserar displayen att visa information
 	//ger varje rad tomt
 	display_init();
@@ -538,94 +522,117 @@ int main(void) {
 	IPC(2) = 0x1f;  //0xbf8810b0
 	enable_interrupt();
 	
-	/* Send start condition and address of the temperature sensor with
-	write mode (lowest bit = 0) until the temperature sensor sends
-	acknowledge condition */
+	//Skickar statkondition och temperatursensorns adress med
+	//"write mode" (lägsta bit = 0) tills temperatursensorn skickar en ack
 	do {
 		i2c_start();
 	} while(!i2c_send(TEMP_SENSOR_ADDR << 1));
-	/* Send register number we want to access */
+	//Skickar register numret vi vill ha tillgång till
 	i2c_send(TEMP_SENSOR_REG_CONF);
-	/* Set the config register to 0 */
+	//Sätter configregistret till 0
 	i2c_send(0x0);
-	/* Send stop condition */
+	//Skickar stoppkondition
 	i2c_stop();
 	
+
 	for(;;) {
-		/* Send start condition and address of the temperature sensor with
-		write flag (lowest bit = 0) until the temperature sensor sends
-		acknowledge condition */
+		//Skickar statkondition och temperatursensorns adress i
+		//"write flag" (lägsta bit = 0) tills temperatursensorn skickar en ack
 		do {
 			i2c_start();
 		} while(!i2c_send(TEMP_SENSOR_ADDR << 1));
-		/* Send register number we want to access */
+		
+		//Skickar register numret vi vill ha tillgång till
 		i2c_send(TEMP_SENSOR_REG_TEMP);
 		
-		/* Now send another start condition and address of the temperature sensor with
-		read mode (lowest bit = 1) until the temperature sensor sends
-		acknowledge condition */
+		//Skickar en annan startkondition och temperatursensorns adress
+		//i "read mode" (lägsta bit = 1) tills temperatursensorn skickar en ack
 		do {
 			i2c_start();
 		} while(!i2c_send((TEMP_SENSOR_ADDR << 1) | 1));
-		
-		/* Now we can start receiving data from the sensor data register */
+	
+		//Nu kan vi börja ta emot data från sensorns dataregister
 		temp = i2c_recv() << 8;
 		i2c_ack();
 		temp |= i2c_recv();
-		/* To stop receiving, send nack and stop */
+		
+		//För att sluta ta emot, skicka nack och stopp
 		i2c_nack();
 		i2c_stop();
 		
-		
+		//Lägger till det första temp-värdet i maxtemp
+		//Om ett annat temp värde är större än nuvarande maxtemp, byter den ut
 		if ((maxtemp == 0) || (temp > maxtemp))
 			maxtemp = temp;
 		
+		//Lägger till det första temp-värdet i mintemp
+		//Om ett annat temp värde är mindre än nuvarande mintemp, byter den ut
 		if ((mintemp == 0) || (temp < mintemp))
 			mintemp = temp;
 		
+		//Lägger till det första  temp-värdet i avgtemp
 		if (avgtemp == 0)
 			avgtemp = temp;
 		
+		//Tar nuvarande avgtemp och adderar med nya temp, sedan delar på två. 
+		//Lägger det nya värdet i avgtemp
 		else 
 			avgtemp = ((avgtemp + temp)/2);
 		
+		
+		//Gör om värdet temp till en string
 		s = fixed_to_string(temp, buf);
+		
+		//t används för att skriva ut enheten
 		t = s + strlen(s);
 		*t++ = ' ';
 		*t++ = 'C';
 		*t++ = 0;
 		
+		//Visar temp på rad noll
+		//Uppdaterar displayn
 		display_string(0, s);
 		display_update();
 		
-		//Gets values from switches
+		//Tar värden från switcharna
 		int switchez = getsw();
-	
+		
+		//Om ingen switch är på
+		//Skriv ut inget
 		if(switchez == 0)
 			{
 				display_string(1, "");
 				display_string(2, "");
 			}
+		//Om switch ett är på
+		//Skriv ut maxtemp
 		if(switchez == 1)
 			{
 				s = fixed_to_string(maxtemp, buf);
 				display_string(1, "Max Temp");
 				display_string(2, s);
-			}
+			}	
+		//Om switch två är på
+		//Skriv ut mintemp
 		if(switchez == 2)
 			{
 				s = fixed_to_string(mintemp, buf);
 				display_string(1, "Min Temp");
 				display_string(2, s);
 			}
+		//Om switch tre är på
+		//Skriv ut avgtemp
 		if(switchez == 4)
 			{
 				s = fixed_to_string(avgtemp, buf);
 				display_string(1, "Avg Temp"); 
 				display_string(2, s);
 			}
-		 
+			
+		//Uppdatera displayn		
 		display_update();
+		
+		//t används för att skriva ut enheten
 		t = s + strlen(s);
 		*t++ = ' ';
 		*t++ = 'C';
@@ -633,8 +640,8 @@ int main(void) {
 		
 		// saktar ner for loopen.
 		delay(1000000);
+		
 	}
 	
 	return 0;
 }
-
