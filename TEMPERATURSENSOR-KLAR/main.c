@@ -611,6 +611,7 @@ int main(void) {
 				s = fixed_to_string(maxtemp, buf);
 				display_string(1, "Max Temp");
 				display_string(2, s);
+
 			}	
 		//Om switch två är på
 		//Skriv ut mintemp
@@ -629,14 +630,15 @@ int main(void) {
 				display_string(2, s);
 			}
 			
-		//Uppdatera displayn		
-		display_update();
 		
 		//t används för att skriva ut enheten
 		t = s + strlen(s);
 		*t++ = ' ';
 		*t++ = 'C';
 		*t++ = 0;
+		
+		//Uppdatera displayn		
+		display_update();
 		
 		// saktar ner for loopen.
 		delay(1000000);
